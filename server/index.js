@@ -20,3 +20,13 @@ app.listen(4000,()=>{
 
 app.use('/auth',userRouter)
 app.use('/auth',authRouter)
+
+app.use((err,req,res,next)=>{
+    const statusCode = err.statusCode || 500
+    const message = err.message || 'Internet Server Error'
+    return res.status(statusCode).json({
+        success: false,
+        message,
+        statusCode
+    })
+})
