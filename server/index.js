@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import mongoose from 'mongoose'
+import cors from 'cors'
 import userRouter from './routes/user.route.js'
 import authRouter from './routes/auth.route.js'
 
@@ -12,6 +13,10 @@ then(()=>console.log('db connected')).catch(err=>{
     console.log(err)
 })
 
+app.use(cors({
+    origin:['http://localhost:3000'],
+    methods: ['GET','POST','PUT','DELETE']
+}))
 app.use(express.json())
 
 app.listen(4000,()=>{
