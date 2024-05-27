@@ -9,3 +9,12 @@ Content-Type: application/json
     "email":"josh@gmail.com",
     "password":"iamnotjosh"
 } 
+###
+
+POST http://localhost:4000/auth/signin
+Content-Type: application/json
+
+{
+    "email":"josh@gmail.com",
+    "password":"iamnotjosh"
+}
