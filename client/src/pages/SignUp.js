@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, json } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const SignUp = () => {
   const [formData,setFormData] = useState({})
@@ -31,7 +31,7 @@ const SignUp = () => {
   }
   return (
     <div onSubmit={handleSubmit} className='p-3 max-w-lg mx-auto'>
-      <h1 className='text-3xl text-center font-semibold my-7'>SignUp</h1>
+      <h1 className='text-3xl text-center font-semibold my-7'>Sign Up</h1>
       <form className='flex flex-col gap-4'>
         <input type="text" name="username" id="username" placeholder='Username'
         className='bg-slate-100 p-3 rounded-lg' onChange={handleChange}/>
