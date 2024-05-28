@@ -3,11 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import {useDispatch, useSelector} from 'react-redux'
 import { signInFailure, signInStart, signInSuccess } from '../features/userSlice'
 import OAuth from '../components/OAuth'
+import { getLoading, getError } from '../features/userSlice'
 
 const SignUp = () => {
   const [formData,setFormData] = useState({})
   const dispatch = useDispatch()
-  const {loading,error} = useSelector(state => state.user)
+  // const {loading,error} = useSelector(state => state.user)
+  const loading = useSelector(getLoading)
+  const error = useSelector(getError)
   
   const navigate = useNavigate()
   const handleChange = (e)=>{
@@ -30,7 +33,7 @@ const SignUp = () => {
         return
       }
       dispatch(signInSuccess(data))
-
+      console.log(data)
       navigate('/sign-in')
 
     }catch(error){
@@ -48,7 +51,7 @@ const SignUp = () => {
         className='bg-slate-100 p-3 rounded-lg' onChange={handleChange}/>
         <input type="password" name="password" id="password" placeholder='Password'
         className='bg-slate-100 p-3 rounded-lg' onChange={handleChange}/>
-        <button type="submit" disabled={loading} className='bg-slate-700 text-white uppercase p-3 rounded-lg hover:opacity-95 disabled:opacity-80'>{loading ? 'Loading' : 'Sign up'}</button>
+        <button type="submit" disabled={!loading} className='bg-slate-700 text-white uppercase p-3 rounded-lg hover:opacity-95 disabled:opacity-80'>{!loading ? 'Loading' : 'Sign up'}</button>
         <OAuth />
       </form>
       <div className='flex gap-2 mt-5'>

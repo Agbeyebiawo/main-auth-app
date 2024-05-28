@@ -1,9 +1,10 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { getCurrentUser } from '../features/userSlice'
 
 const Header = () => {
-    const {user} = useSelector(state=>state.user)
+    const user = useSelector(getCurrentUser)
 
   return (
     <div className='bg-slate-200'>
