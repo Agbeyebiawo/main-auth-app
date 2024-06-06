@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import userRouter from './routes/user.route.js'
 import authRouter from './routes/auth.route.js'
+import cookieParser from 'cookie-parser'
 
 dotenv.config()
 const app = express()
@@ -15,7 +16,8 @@ then(()=>console.log('db connected')).catch(err=>{
 
 app.use(cors({
     origin:['http://localhost:3000'],
-    methods: ['GET','POST','PUT','DELETE']
+    methods: ['GET','POST','PUT','DELETE'],
+    credentials: true 
 }))
 app.use(express.json())
 
@@ -25,6 +27,8 @@ app.listen(4000,()=>{
 
 app.use('/auth',userRouter)
 app.use('/auth',authRouter)
+
+app.use(cookieParser())
 
 app.use((err,req,res,next)=>{
     const statusCode = err.statusCode || 500

@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {getStorage, ref, uploadBytesResumable, getDownloadURL} from 'firebase/storage'
 import {app} from '../firebase'
-import { getCurrentUser } from '../features/userSlice'
+import { getCurrentUser, updateSuccess, deleteUserSuccess, signOut } from '../features/userSlice'
 
 const Profile = () => {
+  const dispatch = useDispatch()
   const [image,setImage] = useState(null)
   const [uploadRate,setUploadRate] = useState(0)
   const [imageError,setImageError] = useState(false)
   const fileRef = useRef(null)
   const user = useSelector(getCurrentUser)
   const [formData,setFormData]= useState({})
+  const navigate = useNavigate()
   
   useEffect(()=>{
     if(image){
@@ -45,10 +48,65 @@ const Profile = () => {
 
     }
   }
+
+  const handleChange = (e)=>{
+    setFormData({...formData, [e.target.id]:e.target.value})
+  }
+
+  const handleSubmit = async (e)=>{
+    e.preventDefault()
+    try{
+      const res = await fetch(`http://localhost:4000/auth/update/${user._id}`,
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          credentials: 'include'
+        }
+      )
+      const data = res.json()
+      if(data.success === false){
+        console.log('somwething went wrong')
+        return
+      }
+      dispatch(updateSuccess(data))
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  const handleDeleteAccount = async ()=>{
+    try{
+      const res = await fetch(`http://localhost:4000/auth/delete/${user._id}`,
+        {
+          method: "DELETE"
+        }
+      )
+      const data = await res.json()
+      if(data.success === false){
+        console.log('Error')
+        return
+      }
+      dispatch(deleteUserSuccess())
+      navigate('/sign-in')
+    }catch(error){
+      console.log(error)
+    }
+  }
+
+  const handleUserSignOut = async()=>{
+    try{
+      await fetch('http://localhost:4000/auth/signout')
+      dispatch(signOut())
+    }catch(error){
+      console.log(error)
+    }
+  }
   return (
     <div className='p-3 max-w-lg mx-auto'>
       <h1 className='text-center font-semibold text-3xl my-7'>Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <input type="file" onChange={e=>setImage(e.target.files[0])} name="" ref={fileRef} hidden accept='image/*' id="" />
          <img onClick={()=>fileRef.current.click()} src={formData.profilePicture || user.profilePicture} alt="profile" className='h-24 w-24 self-center cursor-pointer rounded-full object-cover' />
          
@@ -66,14 +124,14 @@ const Profile = () => {
           ): ''}
          </p>
 
-         <input defaultValue={user.username} type="text" name="username" id="username" placeholder='Username' className='bg-slate-100 rounded-lg p-3'/>
-         <input defaultValue={user.email} type="text" name="email" id="email" placeholder='Email' className='bg-slate-100 rounded-lg p-3'/>
-         <input defaultValue={user.password} type="password" name="password" id="password" placeholder='Password' className='bg-slate-100 rounded-lg p-3'/>
+         <input onChange={handleChange} defaultValue={user.username} type="text" name="username" id="username" placeholder='Username' className='bg-slate-100 rounded-lg p-3'/>
+         <input onChange={handleChange} defaultValue={user.email} type="text" name="email" id="email" placeholder='Email' className='bg-slate-100 rounded-lg p-3'/>
+         <input onChange={handleChange} defaultValue={user.password} type="password" name="password" id="password" placeholder='Password' className='bg-slate-100 rounded-lg p-3'/>
         <button className='bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80'>Update</button>
       </form>
       <div className='flex justify-between mt-5'>
-        <span className='text-red-500 cursor-pointer'>Delete Account</span>
-        <span className='text-red-500 cursor-pointer'>Sign out</span>
+        <span onClick={handleDeleteAccount} className='text-red-500 cursor-pointer'>Delete Account</span>
+        <span onClick={handleUserSignOut} className='text-red-500 cursor-pointer'>Sign out</span>
       </div>
     </div>
   )

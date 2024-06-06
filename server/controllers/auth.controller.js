@@ -2,7 +2,6 @@ import User from '../models/user.model.js'
 import bcrypt from 'bcrypt'
 import {errorHandler} from '../utils/error.js'
 import jwt from 'jsonwebtoken'
-import cookie from 'cookie-parser'
 
 export const signup = async(req,res,next)=>{
     try{
@@ -28,10 +27,13 @@ export const signin = async(req,res,next)=>{
         if(!comparePassword){
             return next(errorHandler(401,'Wrong credentials'))
         }
-        const token = await jwt.sign({id:validUser._id},process.env.JWT_SECRET)
+        const token = jwt.sign({id:validUser._id},process.env.JWT_SECRET)
         const {password:hashedPassword, ...rest} = validUser._doc
         const expiryDate = new Date(Date.now() + 3600000)
-        res.cookie('access_token',token, {httpOnly: true, expires: expiryDate}).status(200).json(rest)
+        res
+        .cookie('access_token', token, { httpOnly: true, expires: expiryDate })
+        .status(200)
+        .json(rest)
     }catch(error){
         next(error)
     }
@@ -44,7 +46,13 @@ export const google = async (req,res,next)=>{
             const token = jwt.sign({id: user._id},process.env.JWT_SECRET)
             const expiryDate = new Date(Date.now() + 3600000)
             const {password:hashedPassword, ...rest} = user._doc
-            res.cookie('access_token',token, {httpOnly: true, expires: expiryDate}).status(200).json(rest)
+            res
+            .cookie('access_token', token, {
+                httpOnly: true,
+                expires: expiryDate,
+            })
+            .status(200)
+            .json(rest)
         }else{
             const {username,email,photo} = req.body
             const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
@@ -55,12 +63,19 @@ export const google = async (req,res,next)=>{
             const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET)
             const {password:hashedPassword2,...rest} = newUser._doc
             const expiryDate = new Date(Date.now() + 3600000)
-            res.cookie('access_token',token,{
-                httpOnly:true,
-                expires: expiryDate
-            }).status(200).json(rest)
+            res
+        .cookie('access_token', token, {
+          httpOnly: true,
+          expires: expiryDate,
+        })
+        .status(200)
+        .json(rest)
         }
     }catch(error){
         next(error)
     }
+}
+
+export const signout = async (req,res)=>{
+    res.clearCookie('access_token').status(200).json('User signout success')
 }
